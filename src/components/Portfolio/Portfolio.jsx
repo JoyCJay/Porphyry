@@ -20,6 +20,7 @@ class Portfolio extends Component {
       corpora: [],
       items: [],
       selectedItems: [],
+      attributes:[],
       topicsItems: new Map()
     };
     this.user = conf.user || window.location.hostname.split('.', 1)[0];
@@ -32,7 +33,7 @@ class Portfolio extends Component {
     let status = this._getStatus();
     return (
       <div className="App container-fluid">
-        <Header ref="header" selectedItems={this.state.selectedItems}/>
+        <Header ref="header" selectedItems={this.state.selectedItems} attributes={this.state.attributes}/>
         <div className="Status row h5 text-center">
           <Authenticated/>
           {status}
@@ -145,6 +146,7 @@ class Portfolio extends Component {
   _updateSelectedItems() {
     let selectedItems = this.state.items
       .filter(e => this._isSelected(e, this.selection));
+    this._extractAttributes(selectedItems);
     let topicsItems = new Map();
     for (let e of selectedItems) {
       for (let t of this._getRecursiveItemTopics(e)) {
@@ -152,6 +154,18 @@ class Portfolio extends Component {
       }
     }
     this.setState({selectedItems, topicsItems});
+  }
+
+  _extractAttributes(selectedItems){
+    let atts = this.state.attributes;
+    for (const sItem of selectedItems) {
+      for (const attribute in sItem) {
+        if (sItem.hasOwnProperty(attribute) && !atts.includes(attribute)) {
+          atts.push(attribute);
+        }
+      }
+    }
+    this.setState({attributes:atts});
   }
 
   _fetchAll() {
